@@ -69,18 +69,6 @@ function handleWeatherRequest(request, response) {
     
     response.send(arrDaysWeather)
 }
-
-
-
-
-
-
-
-
-
-
-
-
 app.get('/*', function(request, response){
     response.status(404).send('Error Loading Results')
   })
