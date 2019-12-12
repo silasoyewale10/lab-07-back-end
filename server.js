@@ -16,6 +16,7 @@ function FormattedData(query, response) {
     this.longitude = response.body.results[0].geometry.location.lng;
 }
 
+app.get('/events', getEvents);
 
 app.get('/location', handleLocationRequest)
 function handleLocationRequest(request, response) {
@@ -24,64 +25,85 @@ function handleLocationRequest(request, response) {
         `https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GEOCODE_API_KEY}`
         ).then(result => {
     const place = new FormattedData (request.query.data, result);
-    console.log('request.query.data is ' )
+    // console.log('request.query.data is ' )
     
     response.send(place)
 })
 .catch(err => handleError (err, response))
 }
 
-function FormattedTimeAndWeather(query, resultBody) {
+
+function FormattedTimeAndWeather(resultBody) {
     
-    this.forecast = resultBody.daily.data[0].summary
-    this.time = new Date(resultBody.daily.data[0].time * 1000).toDateString();
+    this.forecast = resultBody.summary
+    this.time = new Date(resultBody.time * 1000).toDateString();
 }
 
-app.get('/weather', handleWeatherRequest)
-function handleWeatherRequest(request, response) {
+
+
+// app.get('/weather', handleWeatherRequest)
+
+// function weatherFrontEnd (req, res){
+//     return handleWeatherRequest(req.query.data || 'Lynnwood, WA, USA')
+//     .then(result => {
+//         res.send(result)
+//     })
+// }
+
+
+
+function handleWeatherRequest(search) {
     // console.log(request.query.data)
     
     superagent.get(
-        `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`
+        `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${search.latitude},${search.longitude}`
         ).then(result => {
-            let time = result.body.daily.data[0].time;
-            let forcast = result.body.daily.data[0].summary
 
-            console.log('forcast is  ', forcast)
-
-            const weather = new FormattedTimeAndWeather(result.body)
-            
-            
-            console.log('weather is ', weather)
-
-
-            // console.log('WEATHER', weather)
-            // console.log(request.query)
-            // result.body.daily.data.map(forecast => request.query.data.push( new FormattedTimeAndWeather(request.query.data)));
-            response.send(weather)
+            var output = [];
+            result.body.daily.data.map(dailyWeather => output.push(new FormattedTimeAndWeather(dailyWeather)))
+            return output;
+            // response.send(weather)
         })
 }
 
 
-// app.get('/event', handleEventRequest)
-// function handleEventRequest(request, response, query) {
-   
-//     superagent.get(
-//         `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${query.event},${query.event}`
-//         ).then(result => {
 
-//             let silasEvent= [];
-//             result.body.daily.data.map(forecast => silasEvent.push( new FormattedTimeAndWeather(forecast)));
-//             response.send(silasEvent)
-//             return silasEvent;
-//         })
-// }
+
+
+function getEvents(req, res){
+    console.log(req.query);
+    // go to eventful, get data and get it to look like this
+    superagent.get(`http://api.eventful.com/json/events/search?app_key=kcbDf9m2gZnd2bBR&keywords=football&location=${req.query.data.formatted_query}&date=Future`).then(response => {
+    //   console.log(JSON.parse(response.text).events.event[0]);
+      const firstEvent = JSON.parse(response.text).events.event[0];
+      const allEvents = JSON.parse(response.text).events.event;
+  
+      const allData = allEvents.map(event => {
+        return {
+          'link': event.url,
+          'name': event.title,
+          'event_date': event.start_time,
+          'summary': event.description
+        };
+      });
+      // console.log(allData);
+  
+      res.send(allData);
+  
+    });
+  
+  }
+
+
+
+
+
 
 
 
 
   function handleError(err, response) {
-    console.log(err);
+    // console.log(err);
     if (response) response.status(500).send('You are wrong. Merry Christmas');
   }
 
