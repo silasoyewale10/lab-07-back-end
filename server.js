@@ -6,6 +6,9 @@ require('dotenv').config();
 const superagent = require('superagent');
 const app = express();
 app.use(cors());
+
+const DARKSKY_API_KEY = process.env.DARKSKY_API_KEY;
+
 const PORT = process.env.PORT || 3000;
 // LOCATION DATA
 
@@ -15,6 +18,7 @@ function FormattedData(query, response) {
     this.latitude = response.body.results[0].geometry.location.lat;
     this.longitude = response.body.results[0].geometry.location.lng;
 }
+app.get('/weather', getWeather);
 
 app.get('/events', getEvents);
 
@@ -33,38 +37,36 @@ function handleLocationRequest(request, response) {
 }
 
 
-function FormattedTimeAndWeather(resultBody) {
+
+
+
+
+function getWeather(req, res){
+  const weatherLatitude = req.query.data.latitude;
+  const weatherLongitude = req.query.data.longitude
+  // console.log('req.query', req.query); // Gives the info for ex. Lynnwood, description, lat and lng
+
+  superagent.get(`https://api.darksky.net/forecast/${DARKSKY_API_KEY}/${weatherLatitude},${weatherLongitude}`).then(response => {
+    // console.log('response.body.daily.data', response.body.daily.data) // Gives me the object or array data requested 
     
-    this.forecast = resultBody.summary
-    this.time = new Date(resultBody.time * 1000).toDateString();
+    const allWeather = response.body.daily.data; 
+    
+    let allData = allWeather.map(event => {
+      return {
+        'time': new Date(event.time * 1000).toDateString(),
+        'forecast': event.summary
+      }
+    });
+    // console.log('allData', allData);
+    res.send(allData);
+  });
 }
 
 
 
-// app.get('/weather', handleWeatherRequest)
-
-// function weatherFrontEnd (req, res){
-//     return handleWeatherRequest(req.query.data || 'Lynnwood, WA, USA')
-//     .then(result => {
-//         res.send(result)
-//     })
-// }
 
 
 
-function handleWeatherRequest(search) {
-    // console.log(request.query.data)
-    
-    superagent.get(
-        `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${search.latitude},${search.longitude}`
-        ).then(result => {
-
-            var output = [];
-            result.body.daily.data.map(dailyWeather => output.push(new FormattedTimeAndWeather(dailyWeather)))
-            return output;
-            // response.send(weather)
-        })
-}
 
 
 
