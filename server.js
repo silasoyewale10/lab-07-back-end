@@ -75,7 +75,7 @@ function handleLocationRequest(request, response) {
 		}	
 		else {
 			respond.send(request.query.data)
-
+			
 		}
 
 
