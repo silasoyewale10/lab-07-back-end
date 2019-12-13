@@ -36,7 +36,7 @@ function handleLocationRequest(request, response) {
 	client.query('SELECT * FROM locations WHERE search_query = $1', [request.query.data]).then(result => {
 		//results correspond  to the data from sql.
 		if (result.rowCount < 1) {
-			console.log('yeah result r !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', result)
+			// console.log('yeah result r !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', result)
 			superagent.get(
 				`https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GEOCODE_API_KEY}`
 			).then(result => {
@@ -54,7 +54,8 @@ function handleLocationRequest(request, response) {
 			   $3,
 			   $4
 			 )`; // 1 refers to index 0
-	
+			 console.log('request.query.data isisisisis ' , request.query.data)
+
 				// has an optional second parameter of an array of placeholders (things that match up to the templates specified by $)
 				client.query(SQL, [
 					request.query.data,
@@ -64,6 +65,7 @@ function handleLocationRequest(request, response) {
 				]);
 	
 				response.send(place)
+				// console.log("place is ", place)
 			})
 	
 				.catch(err => handleError(err, response))
@@ -72,7 +74,8 @@ function handleLocationRequest(request, response) {
 
 		}	
 		else {
-			console.log("already created fhfdhfdhdfhfhfhfhfhj")
+			respond.send(request.query.data)
+
 		}
 
 
