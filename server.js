@@ -177,6 +177,8 @@ function getMovie(req, res) {
 
 		});
 
+	})
+}
 
 // function getYelp(res, req){
 // 	superagent.get(`https://www.yelp.com/developers/v3/manage_app?app_created=True${process.env.YELP_API_KEY}&language=en-US&query=${getCityName}`).then(data => {
