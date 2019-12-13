@@ -20,10 +20,10 @@ const PORT = process.env.PORT || 3000;
 // LOCATION DATA
 
 function FormattedData(query, response) {
-    this.search_query = query;
-    this.formatted_query = response.body.results[0].formatted_address;
-    this.latitude = response.body.results[0].geometry.location.lat;
-    this.longitude = response.body.results[0].geometry.location.lng;
+	this.search_query = query;
+	this.formatted_query = response.body.results[0].formatted_address;
+	this.latitude = response.body.results[0].geometry.location.lat;
+	this.longitude = response.body.results[0].geometry.location.lng;
 }
 app.get('/weather', getWeather);
 
@@ -31,54 +31,72 @@ app.get('/events', getEvents);
 
 app.get('/location', handleLocationRequest)
 function handleLocationRequest(request, response) {
-  // const quer = request.query.data;
-  //if i have it send it, if i don't, go get it from google. 
-  client.query('SELECT * FROM locations WHERE search_query = $1', [request.query.data]).then( result => {
-   //results correspond  to the data from sql.
-   console.log(result)
-  //  if (row)
-  })  //gets from the db and .then probes the new data
+	// const quer = request.query.data;
+	//if i have it send it, if i don't, go get it from google. 
+	client.query('SELECT * FROM locations WHERE search_query = $1', [request.query.data]).then(result => {
+		//results correspond  to the data from sql.
+		if (result.rowCount < 1) {
+			// console.log('yeah result r !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', result)
+			superagent.get(
+				`https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GEOCODE_API_KEY}`
+			).then(result => {
+				const place = new FormattedData(request.query.data, result);
+				// console.log('request.query.data is ' )
+	
+				const SQL = `INSERT INTO locations(
+			   search_query,
+			   formatted_query,
+         latitude, 
+         const getCityName = '${request.query.data.formatted_query}'.split(',')[0];
+         ${getCityName}
+			   longitude
+			 ) VALUES(
+			   $1, 
+			   $2,
+			   $3,
+			   $4
+			 )`; // 1 refers to index 0
+			 console.log('request.query.data isisisisis ' , request.query.data)
 
-  superagent.get(    
-    `https://maps.googleapis.com/maps/api/geocode/json?address=${request.query.data}&key=${process.env.GEOCODE_API_KEY}`
-    ).then(result => {
-      const place = new FormattedData (request.query.data, result);
-      // console.log('request.query.data is ' )
+				// has an optional second parameter of an array of placeholders (things that match up to the templates specified by $)
+				client.query(SQL, [
+					request.query.data,
+					result.body.results[0].formatted_address,
+					result.body.results[0].geometry.location.lat,
+					result.body.results[0].geometry.location.lng,
+				]);
+	
+				response.send(place)
+				// console.log("place is ", place)
+			})
+	
+				.catch(err => handleError(err, response))
 
-      const SQL = `INSERT INTO locations(
-        search_query,
-        formatted_query,
-        latitude, 
-        longitude
-      ) VALUES(
-        $1, 
-        $2,
-        $3,
-        $4
-      )`; // 1 refers to index 0
-    
-      // has an optional second parameter of an array of placeholders (things that match up to the templates specified by $)
-      client.query(SQL, [
-        request.query.data, 
-        result.body.results[0].formatted_address, 
-        result.body.results[0].geometry.location.lat,
-        result.body.results[0].geometry.location.lng,
-      ]);
 
-      response.send(place)
-    })
-  .catch(err => handleError (err, response))
+
+		}	
+		else {
+			response.send(request)
+			
+		}
+
+
+
+
+
+
+	})  //gets from the db and .then probes the new data
 }
 
 app.get('/', (req, res) => {
 
-  //check the database
-  const SQL = 'SELECT * FROM locations;';
-  client.query(SQL).then(sqlResponse => {
-    console.log(sqlResponse);
-    res.send(sqlResponse.rows);
-    var currentCity = 'SELECT * FROM locations WHERE location = $1';
-  });
+	//check the database
+	const SQL = 'SELECT * FROM locations;';
+	client.query(SQL).then(sqlResponse => {
+		console.log(sqlResponse);
+		res.send(sqlResponse.rows);
+		var currentCity = 'SELECT * FROM locations WHERE location = $1';
+	});
 })
 
 // function checkDB (){
@@ -90,25 +108,25 @@ app.get('/', (req, res) => {
 
 
 
-function getWeather(req, res){
-  const weatherLatitude = req.query.data.latitude;
-  const weatherLongitude = req.query.data.longitude
-  // console.log('req.query', req.query); // Gives the info for ex. Lynnwood, description, lat and lng
+function getWeather(req, res) {
+	const weatherLatitude = req.query.data.latitude;
+	const weatherLongitude = req.query.data.longitude
+	// console.log('req.query', req.query); // Gives the info for ex. Lynnwood, description, lat and lng
 
-  superagent.get(`https://api.darksky.net/forecast/${DARKSKY_API_KEY}/${weatherLatitude},${weatherLongitude}`).then(response => {
-    // console.log('response.body.daily.data', response.body.daily.data) // Gives me the object or array data requested 
-    
-    const allWeather = response.body.daily.data; 
-    
-    let allData = allWeather.map(event => {
-      return {
-        'time': new Date(event.time * 1000).toDateString(),
-        'forecast': event.summary
-      }
-    });
-    // console.log('allData', allData);
-    res.send(allData);
-  });
+	superagent.get(`https://api.darksky.net/forecast/${DARKSKY_API_KEY}/${weatherLatitude},${weatherLongitude}`).then(response => {
+		// console.log('response.body.daily.data', response.body.daily.data) // Gives me the object or array data requested 
+
+		const allWeather = response.body.daily.data;
+
+		let allData = allWeather.map(event => {
+			return {
+				'time': new Date(event.time * 1000).toDateString(),
+				'forecast': event.summary
+			}
+		});
+		// console.log('allData', allData);
+		res.send(allData);
+	});
 }
 
 
@@ -121,29 +139,29 @@ function getWeather(req, res){
 
 
 
-function getEvents(req, res){
-    console.log(req.query);
-    // go to eventful, get data and get it to look like this
-    superagent.get(`http://api.eventful.com/json/events/search?app_key=kcbDf9m2gZnd2bBR&keywords=&location=${req.query.data.formatted_query}&date=Future`).then(response => {
-    //   console.log(JSON.parse(response.text).events.event[0]);
-      const firstEvent = JSON.parse(response.text).events.event[0];
-      const allEvents = JSON.parse(response.text).events.event;
-  
-      const allData = allEvents.map(event => {
-        return {
-          'link': event.url,
-          'name': event.title,
-          'event_date': event.start_time,
-          'summary': event.description
-        };
-      });
-      // console.log(allData);
-  
-      res.send(allData);
-  
-    });
-  
-  }
+function getEvents(req, res) {
+	console.log(req.query);
+	// go to eventful, get data and get it to look like this
+	superagent.get(`http://api.eventful.com/json/events/search?app_key=kcbDf9m2gZnd2bBR&keywords=&location=${req.query.data.formatted_query}&date=Future`).then(response => {
+		//   console.log(JSON.parse(response.text).events.event[0]);
+		const firstEvent = JSON.parse(response.text).events.event[0];
+		const allEvents = JSON.parse(response.text).events.event;
+
+		const allData = allEvents.map(event => {
+			return {
+				'link': event.url,
+				'name': event.title,
+				'event_date': event.start_time,
+				'summary': event.description
+			};
+		});
+		// console.log(allData);
+
+		res.send(allData);
+
+	});
+
+}
 
 
 
@@ -153,15 +171,15 @@ function getEvents(req, res){
 
 
 
-  function handleError(err, response) {
-    // console.log(err);
-    if (response) response.status(500).send('You are wrong. Merry Christmas');
-  }
+function handleError(err, response) {
+	// console.log(err);
+	if (response) response.status(500).send('You are wrong. Merry Christmas');
+}
 
 
 
 console.log('LOCATIONS END FIRING');
 
 app.listen(PORT, () => {
-    console.log("Port is working and listening  onnnnn port " + PORT)
+	console.log("Port is working and listening  onnnnn port " + PORT)
 });
