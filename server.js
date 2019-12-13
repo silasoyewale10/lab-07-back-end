@@ -30,7 +30,7 @@ app.get('/weather', getWeather);
 app.get('/events', getEvents);
 app.get('/movies', getMovie);
 app.get('/location', handleLocationRequest)
-app.get('/yelp', getWeather);
+// app.get('/yelp', getWeather);
 
 function handleLocationRequest(request, response) {
 	//if i have it send it, if i don't, go get it from google. 
@@ -178,18 +178,18 @@ function getMovie(req, res) {
 		});
 
 
-function getYelp(res, req){
-	superagent.get(`https://www.yelp.com/developers/v3/manage_app?app_created=True${process.env.YELP_API_KEY}&language=en-US&query=${getCityName}`).then(data => {
-        //  ${getCityName}
-}
+// function getYelp(res, req){
+// 	superagent.get(`https://www.yelp.com/developers/v3/manage_app?app_created=True${process.env.YELP_API_KEY}&language=en-US&query=${getCityName}`).then(data => {
+//         //  ${getCityName}
+// }
 
-		// console.log(arrayOfProcessedMovieObjects);
+// 		// console.log(arrayOfProcessedMovieObjects);
 
-		res.send(data
+// 		res.send(data
 
-	})
-	// return 
-}
+// 	})
+// 	// return 
+// }
 
 // function yelp(req, res)
 
