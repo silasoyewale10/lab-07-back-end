@@ -30,6 +30,7 @@ app.get('/weather', getWeather);
 app.get('/events', getEvents);
 app.get('/movies', getMovie);
 app.get('/location', handleLocationRequest)
+app.get('/yelp', getWeather);
 
 function handleLocationRequest(request, response) {
 	//if i have it send it, if i don't, go get it from google. 
@@ -177,7 +178,10 @@ function getMovie(req, res) {
 		});
 
 
-
+function getYelp(res, req){
+	superagent.get(`https://api.themoviedb.org/3/search/movie?api_key=${process.env.YELP_API_KEY}&language=en-US&query=${getCityName}&page=1&include_adult=false`).then(data => {
+        //  ${getCityName}
+}
 
 		// console.log(arrayOfProcessedMovieObjects);
 
