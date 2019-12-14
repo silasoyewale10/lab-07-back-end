@@ -115,7 +115,7 @@ function getWeather(req, res) {
 		});
 		// console.log('allData', allData);
 		res.send(allData);
-	});
+	}) .catch(err => handleError(err, response))
 }
 
 
@@ -141,7 +141,7 @@ function getEvents(req, res) {
 
 		res.send(allData);
 
-	});
+	}).catch(err => handleError(err, response))
 
 }
 
@@ -176,7 +176,7 @@ function getMovie(req, res) {
 			};
 		});
 		res.send(arrayOfProcessedMovieObjects)
-	})
+	}).catch(err => handleError(err, response))
 }
 app.get('/yelp', getYelp);
 function getYelp(req, res){
@@ -200,38 +200,10 @@ function getYelp(req, res){
 		// var x =9;
 
 		
-	})
+	}).catch(err => handleError(err, response))
+
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function handleError(err, response) {
 			// console.log(err);

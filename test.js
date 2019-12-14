@@ -204,35 +204,6 @@ function getYelp(req, res){
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function handleError(err, response) {
 			// console.log(err);
 			if (response) response.status(500).send('You are wrong. Merry Christmas');
