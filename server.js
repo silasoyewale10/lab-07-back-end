@@ -164,7 +164,7 @@ function getMovie(req, res) {
 		
 		// console.log('********************result for getmovie data is', allMovie);
 		const arrayOfProcessedMovieObjects = allMovieFromSuperagent.results.map( (movie) => {
-			console.log('movie is ', movie)
+			// console.log('movie is ', movie)
 			return {
 				'title' : movie.title,
 				 'overview' : movie.overview,
@@ -174,26 +174,37 @@ function getMovie(req, res) {
 				 'popularity' : movie.popularity,
 				 'released_on' : movie.release_date
 			};
-
 		});
-
+		res.send(arrayOfProcessedMovieObjects)
 	})
 }
+app.get('/yelp', getYelp);
+function getYelp(req, res){
+	// https://api.yelp.com/v3/events?location=seattle
 
-// function getYelp(res, req){
-// 	superagent.get(`https://www.yelp.com/developers/v3/manage_app?app_created=True${process.env.YELP_API_KEY}&language=en-US&query=${getCityName}`).then(data => {
-//         //  ${getCityName}
-// }
+	const url = `https://api.yelp.com/v3/businesses/search?term=restaurants&latitude=${req.query.data.latitude}&longitude=${req.query.data.longitude}`
+	superagent.get(url).set('Authorization', `Bearer ${process.env.YELP_API_KEY}`).then (data => {
+		// console.log('My data.body is ',data.body.businesses)  //i have my array that i can call a map on
+		// const allBusinessesFromSuperagent = JSON.parse(data.body.buinesses)
+		console.log('allBusinessesFromSuperagent isisisisi',data.body.businesses[0])
+		const arrayOfBusinessesToFrontEnd = data.body.businesses.map((eachBusiness) => {
+			return {
+				'name':eachBusiness.name,
+				'image_url':eachBusiness.image_url,
+				'price':eachBusiness.price,
+				'rating':eachBusiness.rating,
+				'url':eachBusiness.url
+			}
+		})
+		res.send(arrayOfBusinessesToFrontEnd)
+		// var x =9;
 
-// 		// console.log(arrayOfProcessedMovieObjects);
+		
+	})
 
-// 		res.send(data
+}
 
-// 	})
-// 	// return 
-// }
 
-// function yelp(req, res)
 
 
 
