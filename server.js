@@ -186,7 +186,7 @@ function getYelp(req, res){
 	superagent.get(url).set('Authorization', `Bearer ${process.env.YELP_API_KEY}`).then (data => {
 		// console.log('My data.body is ',data.body.businesses)  //i have my array that i can call a map on
 		// const allBusinessesFromSuperagent = JSON.parse(data.body.buinesses)
-		console.log('allBusinessesFromSuperagent isisisisi',data.body.businesses[0])
+		console.log('allBusinessesFromSuperagent url isisisisi',data.body.businesses[0].price)
 		const arrayOfBusinessesToFrontEnd = data.body.businesses.map((eachBusiness) => {
 			return {
 				'name':eachBusiness.name,
