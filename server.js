@@ -39,39 +39,19 @@ app.get('/', (req, res) => {
 	});
 })
 
-// function checkDB (){
-//   var rowCounter = 0
-// }
-// checkDB();
-
-
-
-
-
-
-
-
-
-
-
-
-// `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&language=en-US&query=${getCityName}&page=1&include_adult=false`;
-
-//https://api.themoviedb.org/3/search/movie?api_key=ebad0ee2cbcbd884457e20f7cd06edc6&language=en-US&query=salem&page=1&include_adult=false
-//ebad0ee2cbcbd884457e20f7cd06edc6
 
 app.get('/yelp', getYelp);
 
 
 function handleError(err, response) {
-			// console.log(err);
-			if (response) response.status(500).send('You are wrong. Merry Christmas');
+	// console.log(err);
+	if (response) response.status(500).send('You are wrong. Merry Christmas');
 
-		}
+}
 
 // console.log('LOCATIONS END FIRING');
 
-	app.listen(PORT, () => {
-		console.log("Port is working and listening  onnnnn port " + PORT)
-	});
+app.listen(PORT, () => {
+	console.log("Port is working and listening  onnnnn port " + PORT)
+});
 

@@ -4,6 +4,8 @@ const superagent = require('superagent');
 const client = require('./utils.js').client;
 
 const DARKSKY_API_KEY = process.env.DARKSKY_API_KEY;
+const handleError = require('./utils.js').handleError;
+
 
 function getWeather(req, res) {
 	const weatherLatitude = req.query.data.latitude;
@@ -23,7 +25,7 @@ function getWeather(req, res) {
 		});
 		// console.log('allData', allData);
 		res.send(allData);
-	}) .catch(err => handleError(err, response))
+	}).catch(err => handleError(err, response))
 }
 
 module.exports = getWeather;

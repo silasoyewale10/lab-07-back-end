@@ -2,6 +2,7 @@
 const superagent = require('superagent');
 
 const client = require('./utils.js').client;
+const handleError = require('./utils.js').handleError;
 
 
 function FormattedData(query, response) {
